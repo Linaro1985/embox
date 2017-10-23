@@ -1,0 +1,71 @@
+package third_party.bsp.stmf1cube
+
+@Build(stage=1,script="$(EXTERNAL_MAKE) download extract patch")
+@BuildArtifactPath(cppflags="-DSTM32F103xB -DUSE_RTOS=0 -I$(ROOT_DIR)/third-party/bsp/stmf1cube/ $(addprefix -I$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/,Drivers/STM32F1xx_HAL_Driver/Inc Drivers/CMSIS/Device/ST/STM32F1xx/Include Drivers/CMSIS/Include)")
+static module core extends third_party.bsp.st_bsp_api {
+
+	option number hse_freq_hz = 8000000 /* STM32F103C8T6 oscillator */
+
+	@Cflags("-Wno-unused")
+	@DefineMacro("STM32F103xB")
+	@DefineMacro("USE_RTOS=0")
+	@DefineMacro("USE_HAL_DRIVER")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Inc")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/CMSIS/Device/ST/STM32F1xx/Include")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/CMSIS/Include")
+	@AddPrefix("^BUILD/extbld/^MOD_PATH")
+	source
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_adc_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_can.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_crc.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_dma.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_irda.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_pwr.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rtc_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c",
+		"STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_usart.c"
+
+		@IncludeExport(path="")
+		source "stm32f1xx_hal_conf.h"
+}
+
+@BuildDepends(core)
+static module cmsis extends embox.arch.arm.cmsis {
+	source "cmsis_impl.h"
+	depends core
+}
+
+@Build(stage=1,script="true")
+@BuildDepends(core)
+static module system_init {
+	@DefineMacro("STM32F103xB")
+	@DefineMacro("USE_RTOS=0")
+	@DefineMacro("USE_STDPERIPH_DRIVER")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/STM32F1xx_HAL_Driver/Inc")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/CMSIS/Device/ST/STM32F1xx/Include")
+	@IncludePath("$(EXTERNAL_BUILD_DIR)/third_party/bsp/stmf1cube/core/STM32Cube_FW_F1_V1.6.0/Drivers/CMSIS/Include")
+	@AddPrefix("^BUILD/extbld/third_party/bsp/stmf1cube/core")
+	source "./STM32Cube_FW_F1_V1.6.0/Projects/STM32F103RB-Nucleo/Templates/Src/system_stm32f1xx.c"
+}
+
+@Build(stage=1,script="true")
+@BuildDepends(core)
+module arch extends embox.arch.arch {
+	source "arch.c"
+	depends system_init
+}
